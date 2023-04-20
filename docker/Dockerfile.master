@@ -5,7 +5,7 @@ FROM team14registry.azurecr.io/sys-base:latest
 
 ENV RPC_ADDRESS=127.0.0.1
 ENV ETCD_ADDRESS=127.0.0.1
-ENV BLOB_CONNECTION="DefaultEndpointsProtocol=https;AccountName=cs6211grp14;AccountKey=pik6lnkDjr9yb+yqEYP2EeUOuh2Bk7xLolb3ehu8Spa46SMvl6kbyjb9/gYKVynk0vPip1TMITmK+ASt4ujvtA==;EndpointSuffix=core.windows.net"
+ENV BLOB_CONNECTION="YOUR_AZURE_BLOB_KEY"
 ENV USE_SAME_PORT=0
 ENV ETCD_ROOT_PASSWORD=""
 ENV FAIL=0

@@ -2,7 +2,7 @@
 
 > Note that this is just a reference code which is not expected to be used in prod or maintained.
 
-This project is to write a map reduce framework in C++, and deploy to Azure kubernetes cluster. The application of map reduce is to process large amount of data, hence the mappers and reducers here works in a distributed manner with M number of masters and N number of workers.
+This project is to develop a map reduce framework from scratch with C++, and deploy to Azure kubernetes cluster. The application of map reduce is to process large amount of data, hence the mappers and reducers here works in a distributed manner with M number of masters and N number of workers.
 
 In this application, we are treating workers as agnostic agent that is able to act as a mapper/reducer. To spawn multiple workers & masters, Kubenetes will spin up multiple replicas of the workers and masters pods. The master will then assign the tasks to the workers. The master will also keep track of the status of the tasks, and will report back to the client when the job is done. Leader election is also implemented to ensure that there is only one master that accepts requests at a time. Etcd is used to store the master information. A proxy server is also deployed to handle the client requests and forward the requests to the master (leader). 
 
@@ -43,12 +43,13 @@ Please refer to this link: https://devblogs.microsoft.com/azure-sdk/intro-cpp-sd
 
 ## Build docker images
 
-```
+```bash
 docker build -t sys-base -f docker/base.Dockerfile .
 docker build -t mr-master -f docker/Dockerfile.master .
 docker build -t mr-worker -f docker/Dockerfile.worker .
 docker build -t mr-proxy -f docker/Dockerfile.worker .
 ```
+
 ### Test run docker image
 
 ```bash
@@ -143,11 +144,9 @@ docker kill $(docker ps -q)
 ```
 
 ```bash
-curl -X POST http://52.226.247.116/request -H 'Content-Type: application/json' -d '{"mapper":"mapper.py","reducer":"reducer.py", "data":"dfs-source-small", "m_num" : 20, "r_num": 5}'
-
-curl -X POST http://localhost:8080/request -H 'Content-Type: application/json' -d '{"mapper":"mapper.py","reducer":"reducer.py", "data":"dfs-source-small", "m_num" : 5, "r_num": 3, "phase": "map"}'
-
-curl -X POST http://localhost:8080/request -H 'Content-Type: application/json' -d '{"mapper":"mapper.py","reducer":"reducer.py", "data":"dfs-source-small", "m_num" : 5, "r_num": 3, "phase": "reduce"}'
+curl -X POST http://ADDRESS_IP/request -H 'Content-Type: application/json' -d '{"mapper":"mapper.py","reducer":"reducer.py", "data":"dfs-source-small", "m_num" : 20, "r_num": 5}'
+curl -X POST http://ADDRESS_IP:8080/request -H 'Content-Type: application/json' -d '{"mapper":"mapper.py","reducer":"reducer.py", "data":"dfs-source-small", "m_num" : 5, "r_num": 3, "phase": "map"}'
+curl -X POST http://ADDRESS_IP:8080/request -H 'Content-Type: application/json' -d '{"mapper":"mapper.py","reducer":"reducer.py", "data":"dfs-source-small", "m_num" : 5, "r_num": 3, "phase": "reduce"}'
 ```
 
 ## User python interface
@@ -178,4 +177,4 @@ echo "foo foo quux labs foo bar quux" | python3 mapper.py | sort -k1,1 | python3
 ```
 
 Note:
-- work with @youliangtan and @longnguyen2706
+- Developed by @youliangtan and @longnguyen2706
