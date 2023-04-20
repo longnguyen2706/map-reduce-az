@@ -1,6 +1,5 @@
 # Map Reduce Project
-
-> Note that this is just a reference code which is not expected to be used in prod or maintained.
+My project with @youliangtan, forked from his repo
 
 This project is to develop a map reduce framework from scratch with C++, and deploy to Azure kubernetes cluster. The application of map reduce is to process large amount of data, hence the mappers and reducers here works in a distributed manner with M number of masters and N number of workers.
 
