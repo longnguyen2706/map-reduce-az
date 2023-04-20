@@ -176,5 +176,5 @@ python3 user_interface.py
 echo "foo foo quux labs foo bar quux" | python3 mapper.py | sort -k1,1 | python3 reducer.py
 ```
 
-Note:
+## Note:
 - Developed by @youliangtan and @longnguyen2706
