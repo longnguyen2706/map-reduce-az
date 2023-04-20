@@ -1,0 +1,18 @@
+# FROM sys-base:latest
+FROM team14registry.azurecr.io/sys-base:latest
+
+# Define the rest of your dockerfile here
+ENV ETCD_ADDRESS=127.0.0.1
+ENV ETCD_ROOT_PASSWORD=""
+
+# TODO: Fix this
+RUN rm -rf build
+RUN rm -rf CMake*
+
+RUN mkdir -p /sys-dir
+COPY ./ sys-dir/
+
+RUN cd sys-dir && rm -rf build && mkdir build && cd build && cmake .. && make -j4
+
+WORKDIR /sys-dir/build
+ENTRYPOINT [ "./proxy" ]

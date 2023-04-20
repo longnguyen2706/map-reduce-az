@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: master
+  labels:
+    app: master
+spec:
+  replicas: 4
+  serviceName: master
+  selector:
+    matchLabels:
+      app: master
+  template:
+    metadata:
+      labels:
+        app: master
+    spec:
+      containers:
+        - name: sys-master
+          image: team14registry.azurecr.io/mr-master
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: RPC_ADDRESS
+              value: rpc-srv.cloud-sys.svc.cluster.local
+            - name: ETCD_ADDRESS
+              value: etcd.cloud-sys.svc.cluster.local
+            - name: ETCD_ROOT_PASSWORD
+              value: "" # Note: use kubectl get secret if required
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP

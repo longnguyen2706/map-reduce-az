@@ -1,0 +1,94 @@
+# NOTE: use ingress only for fancy routing
+##
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: http-srv-ingress
+#   namespace: cloud-sys
+#   # annotations:
+#   #   nginx.ingress.kubernetes.io/ssl-redirect: "false"
+#   #   nginx.ingress.kubernetes.io/rewrite-target: /static/$2
+# spec:
+#   ingressClassName: nginx
+#   rules:
+#   - http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: http-srv
+#             port: 
+#               number: 8080
+---              
+apiVersion: v1
+kind: Service
+metadata:
+  name: public-svc
+  namespace: cloud-sys
+spec:
+  type: LoadBalancer
+  selector:
+    app: proxy
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-srv
+  namespace: cloud-sys
+spec:
+  clusterIP: None
+  selector:
+    app: master
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rpc-srv
+  namespace: cloud-sys
+spec:
+  # type: LoadBalancer
+  clusterIP: None
+  selector:
+    app: worker
+  ports:
+  - name: grpc
+    port: 50051
+    targetPort: 50051
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxy
+  labels:
+    app: proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: proxy
+  template:
+    metadata:
+      labels:
+        app: proxy
+    spec:
+      containers:
+        - name: sys-worker
+          image: team14registry.azurecr.io/mr-proxy
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ETCD_ADDRESS
+              value: etcd.cloud-sys.svc.cluster.local
+            - name: ETCD_ROOT_PASSWORD
+              value: "" # Note: use kubectl get secret if required

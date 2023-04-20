@@ -1,0 +1,22 @@
+# FROM sys-base:latest
+FROM team14registry.azurecr.io/sys-base:latest
+
+ENV RPC_ADDRESS=127.0.0.1
+ENV RPC_PORT=50051
+ENV BLOB_CONNECTION="DefaultEndpointsProtocol=https;AccountName=cs6211grp14;AccountKey=pik6lnkDjr9yb+yqEYP2EeUOuh2Bk7xLolb3ehu8Spa46SMvl6kbyjb9/gYKVynk0vPip1TMITmK+ASt4ujvtA==;EndpointSuffix=core.windows.net"
+ENV FAIL=0
+# Define the rest of your dockerfile here
+
+# TODO: Fix this
+RUN rm -rf build
+RUN rm -rf CMake*
+
+RUN mkdir -p /sys-dir
+COPY ./ sys-dir/
+
+RUN cd sys-dir && rm -rf build && mkdir build && cd build \
+    && cmake .. && make -j4
+
+WORKDIR /sys-dir/build
+EXPOSE 50051
+ENTRYPOINT [ "./worker" ]

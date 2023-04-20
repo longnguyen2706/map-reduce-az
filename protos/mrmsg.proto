@@ -1,0 +1,88 @@
+// Starter Proto file, feel free to change name of the file
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.mrmsg";
+option java_outer_classname = "MapReduceProto";
+option objc_class_prefix = "HLW";
+
+package mrmsg;
+
+// The map reduce service definition.
+service MrService {
+  rpc MapperAssign (MapRequest) returns (MrResponse) {}
+  rpc ReducerAssign (ReduceRequest) returns (MrResponse) {}
+  rpc PingWorker (PingWorkerRequest) returns (PingWorkerResponse) {}
+}
+
+message Request{
+  string id = 1;                          // worker ID
+  string output_dir = 2;                  // output directory
+  string input_dir = 3;                   // input directory
+  string mapper_script = 4;                 // script name
+  string reducer_script = 5;                 // script name
+  int32 num_mappers =6;
+  int32 num_reducers = 7;                 // number of reducers
+}
+
+message MapRequest{
+  string id = 2;                          // worker ID
+  string output_dir = 3;                  // output directory
+  string input_dir = 4;                   // input directory
+  string script_name = 1;                 // script name
+  repeated File files = 5;                // shard          
+  int32 num_reducers = 6;                 // number of reducers
+  string req_id = 7;
+}
+
+message ReduceRequest{
+  string id = 2;                          // worker ID
+  string output_dir = 3;                  // output directory
+  string input_dir = 4;                   // input directory
+  string script_name = 1;                 // script name
+  repeated File files = 5;                // shard
+  string req_id = 6;
+}
+
+message File {
+  string file_name=1; 
+  int32 start = 2; 
+  int32 end = 3; 
+  int32 file_len = 4;
+}
+
+message MrResponse{
+  string id = 1;
+  MrStatus status = 2; // 0 mean success, 1 mean failure
+}
+
+message PingWorkerRequest{
+  string id = 1;
+}
+
+message PingWorkerResponse{
+  string id = 1; 
+  WorkerStatus status = 2; // 0 -> healthy, 1 -> unhealthy
+}
+
+message WorkerInfo{
+  string id = 1; 
+  WorkerStatus status = 2; // 0 -> healthy, 1 -> unhealthy
+}
+
+enum TaskStatus {
+  NOT_STARTED = 0;
+  PROCESSING = 1;
+  COMPLETED = 2;
+  FAILED = 3;
+}
+
+enum WorkerStatus {
+  HEALTHY = 0;
+  UNHEALTHY = 1;
+}
+
+enum MrStatus{
+  SUCCESS = 0;
+  FAILURE = 1;
+}

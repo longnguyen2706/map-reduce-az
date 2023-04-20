@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  labels:
+    app: worker
+spec:
+  replicas: 30
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: sys-worker
+          image: team14registry.azurecr.io/mr-worker
+          imagePullPolicy: "Always"
+          env:
+            - name: RPC_ADDRESS
+              value: 0.0.0.0
