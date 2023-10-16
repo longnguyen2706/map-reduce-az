@@ -1,9 +1,9 @@
-# Map Reduce Project
-My project with @youliangtan, forked from his repo
+# Map Reduce on Azure
+My project with @youliangtan, forked from his repo. We use the school's GitHub account for the initial development, so all the history is gone. 
 
-This project is to develop a map reduce framework from scratch with C++, and deploy to Azure kubernetes cluster. The application of map reduce is to process large amount of data, hence the mappers and reducers here works in a distributed manner with M number of masters and N number of workers.
+This project is to develop a map-reduce framework from scratch with C++ and deploy it to the Azure Kubernetes cluster. The application of map reduce is to process a large amount of data, hence the mappers and reducers here work in a distributed manner with M number of masters and N number of workers.
 
-In this application, we are treating workers as agnostic agent that is able to act as a mapper/reducer. To spawn multiple workers & masters, Kubenetes will spin up multiple replicas of the workers and masters pods. The master will then assign the tasks to the workers. The master will also keep track of the status of the tasks, and will report back to the client when the job is done. Leader election is also implemented to ensure that there is only one master that accepts requests at a time. Etcd is used to store the master information. A proxy server is also deployed to handle the client requests and forward the requests to the master (leader). 
+In this application, we are treating workers as an agnostic agent that is able to act as a mapper/reducer. To spawn multiple workers & masters, Kubernetes will spin up multiple replicas of the workers and masters pods. The master will then assign the tasks to the workers. The master will also keep track of the status of the tasks and will report back to the client when the job is done. Leader election is also implemented to ensure that there is only one master who accepts requests at a time. Etcd is used to store the master information. A proxy server is also deployed to handle the client requests and forward the requests to the master (leader). 
 
 ```mermaid
 flowchart LR
@@ -36,7 +36,7 @@ Fault tolerance is also implemented in the master, where if the leader fails, th
 
 -----
 
-Note there are 2 versions of the azure-blob-storage library. One is the older version (`azure-storage-cpp`), the other is the newer version, which is part of the `azure-sdk-for-cpp`.
+Note there are 2 versions of the azure-blob-storage library. One is the older version (`azure-storage-cpp`), and the other is the newer version, which is part of the `azure-sdk-for-cpp`.
 
 Please refer to this link: https://devblogs.microsoft.com/azure-sdk/intro-cpp-sdk/
 
