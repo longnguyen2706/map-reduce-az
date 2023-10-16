@@ -1,5 +1,5 @@
 # Map Reduce on Azure
-My project with @youliangtan, forked from his repo. We use the school's GitHub account for the initial development, so all the history is gone. 
+My project with @youliangtan, forked from his repo. We use the school's GitHub account for the initial development, so all the git history is gone after porting over to this personal Github.
 
 This project is to develop a map-reduce framework from scratch with C++ and deploy it to the Azure Kubernetes cluster. The application of map reduce is to process a large amount of data, hence the mappers and reducers here work in a distributed manner with M number of masters and N number of workers.
 
