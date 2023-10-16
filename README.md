@@ -1,4 +1,5 @@
 # Map Reduce on Azure
+## High level description
 My project with @youliangtan, forked from his repo. We use the school's GitHub account for the initial development, so all the git history is gone after porting over to this personal Github.
 
 This project is to develop a map-reduce framework from scratch with C++ and deploy it to the Azure Kubernetes cluster. The application of map reduce is to process a large amount of data, hence the mappers and reducers here work in a distributed manner with M number of masters and N number of workers.
@@ -40,7 +41,42 @@ Note there are 2 versions of the azure-blob-storage library. One is the older ve
 
 Please refer to this link: https://devblogs.microsoft.com/azure-sdk/intro-cpp-sdk/
 
-## Build docker images
+## How to run 
+### Data Setup
+On Project Azure Blob storage, create folders and sub-folders as follow: 
+- `data/`
+    - `data/small`: upload a few small files to this folder (for small load test)
+    - `data/large`: upload all files to this folder - 1GB in total (for high load test)
+- `py_scripts/`: consists of custom `mapper.py`, `reducer.py` implementation by user(s)
+
+You can do the data upload from local too. Use this utility script (remember to follow the following steps to setup local connections to Azure)
+```bash
+# install
+pip3 install azure-storage-blob
+
+# set env variable first
+export AZURE_STORAGE_CONNECTION_STRING=XXXXX
+
+# run the script to reset & upload data/scripts to azure
+python3 user_interface.py
+```
+
+### Run command
+From local/ cloud terminal, make a POST request to app http client that specify: 
+- Mapper/ reducer python script file name
+- Data source
+- Number of mapper/ reducer
+
+This will trigger the map/ reduce process. You can test out the fault-tolerant part by killing/ spinning up new mapper/ worker instance using Kubernetes script and Azure CLI
+
+```bash
+curl -X POST http://ADDRESS_IP/request -H 'Content-Type: application/json' -d '{"mapper":"mapper.py","reducer":"reducer.py", "data":"dfs-source-small", "m_num" : 20, "r_num": 5}'
+curl -X POST http://ADDRESS_IP:8080/request -H 'Content-Type: application/json' -d '{"mapper":"mapper.py","reducer":"reducer.py", "data":"dfs-source-small", "m_num" : 5, "r_num": 3, "phase": "map"}'
+curl -X POST http://ADDRESS_IP:8080/request -H 'Content-Type: application/json' -d '{"mapper":"mapper.py","reducer":"reducer.py", "data":"dfs-source-small", "m_num" : 5, "r_num": 3, "phase": "reduce"}'
+```
+
+## How to build and test artifact
+### Build docker images locally
 
 ```bash
 docker build -t sys-base -f docker/base.Dockerfile .
@@ -59,7 +95,7 @@ docker run -it --rm --network host --name mr-worker mr-worker
 docker run -it --rm --network host --env RPC_PORT=50051 --name mr-worker1 mr-worker
 ```
 
-## push to azure docker registry
+### Push to azure docker registry
 ```bash
 docker tag mr-master team14registry.azurecr.io/mr-master:latest
 docker tag mr-worker team14registry.azurecr.io/mr-worker:latest
@@ -69,7 +105,7 @@ docker push team14registry.azurecr.io/mr-worker:latest
 docker push team14registry.azurecr.io/mr-proxy:latest
 ```
 
-## Or build locally
+### Build locally
 ```
 ./install_library.sh
 ```
@@ -137,43 +173,8 @@ NOTE: when delete etcd, there is a persistent volume claim that is not deleted. 
 kubectl delete pvc data-etcd-0 -n cloud-sys # something like this
 ```
 
-# Useful command 
-```bash 
-docker kill $(docker ps -q)
-```
 
-```bash
-curl -X POST http://ADDRESS_IP/request -H 'Content-Type: application/json' -d '{"mapper":"mapper.py","reducer":"reducer.py", "data":"dfs-source-small", "m_num" : 20, "r_num": 5}'
-curl -X POST http://ADDRESS_IP:8080/request -H 'Content-Type: application/json' -d '{"mapper":"mapper.py","reducer":"reducer.py", "data":"dfs-source-small", "m_num" : 5, "r_num": 3, "phase": "map"}'
-curl -X POST http://ADDRESS_IP:8080/request -H 'Content-Type: application/json' -d '{"mapper":"mapper.py","reducer":"reducer.py", "data":"dfs-source-small", "m_num" : 5, "r_num": 3, "phase": "reduce"}'
-```
-
-## User python interface
+### User python interface
 
 The user interface is a python script that will help you to upload data and scripts to azure blob storage.
 
-### Setup
-
-On project folder, create folder and sub-folder: 
-- `data/`
-    - `data/small`: small data set
-    - `data/large`: put all files (1GB in total)
-- `py_scripts/`: consists of `mapper.py`, `reducer.py` implementation. This will get called  inside
-
-```bash
-# install
-pip3 install azure-storage-blob
-
-# set env variable first
-export AZURE_STORAGE_CONNECTION_STRING=XXXXX
-
-# run the script to reset & upload data/scripts to azure
-python3 user_interface.py
-```
-
-```
-echo "foo foo quux labs foo bar quux" | python3 mapper.py | sort -k1,1 | python3 reducer.py
-```
-
-## Note:
-- Developed by @youliangtan and @longnguyen2706
